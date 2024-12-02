@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Day1 do
   @impl Mix.Task
   def run(args) do
     filename = Enum.join(args, " ")
-    IO.puts(Day1.part_1(filename))
-    IO.puts(Day1.part_2(filename))
+    IO.puts(Day1.part1(filename))
+    IO.puts(Day1.part2(filename))
   end
 end

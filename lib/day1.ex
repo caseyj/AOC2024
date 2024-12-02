@@ -89,13 +89,13 @@ defmodule Day1 do
     Enum.reduce(key_list, 0, fn x, acc -> acc+val_mult(x, count_map) end)
   end
 
-  def part_1(path) do
+  def part1(path) do
     {:ok, contents} = File.read(path)
     {left, right} = collect_str_ints_to_list(String.split(contents, "\n", trim: true))
     sort_reduce_subtract(left, right)
   end
 
-  def part_2(path) do
+  def part2(path) do
     {:ok, contents} = File.read(path)
     {left, right} = collect_str_ints_to_list(String.split(contents, "\n", trim: true))
     count_map = simcount(right)

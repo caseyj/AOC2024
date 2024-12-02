@@ -49,7 +49,7 @@ defmodule Day1Test do
   end
 
   test "Checking file IO works with day1" do
-    assert Day1.part_1("data/day1_sample.txt") == 11
+    assert Day1.part1("data/day1_sample.txt") == 11
   end
 
 
@@ -71,6 +71,6 @@ defmodule Day1Test do
   end
 
   test "Checking file io works for part 2" do
-    assert Day1.part_2("data/day1_sample.txt") == 31
+    assert Day1.part2("data/day1_sample.txt") == 31
   end
 end

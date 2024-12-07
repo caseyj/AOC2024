@@ -67,8 +67,50 @@ defmodule Day6Test do
     end
   end
 
+  for {direction, expected} <- [
+    {:north, :west},
+    {:west, :south},
+    {:south, :east},
+    {:east, :north}
+  ]do
+    test "Check rotation to identify previous position is corrent for #{direction} expecting #{expected}" do
+      assert Day6.previous_rotation(unquote(direction)) == unquote(expected)
+    end
+  end
+
+  test "Check find_block() works" do
+    assert Day6.find_block([{0,0}, {0,1}, {0,2}, {0,3}], {{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == {0,2}
+    assert Day6.find_block([{0,0}, {1,0}, {2,0}, {3,0}], {{".",".","#"},{".",".","#"},{".","#","#"}, {".","#","#"}}) == nil
+  end
+
+  test "Check find_span() works" do
+    assert Day6.find_span([{0,0}, {0,1}, {0,2}, {0,3}], {{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == [{0,0}, {0,1}]
+    assert Day6.find_span([{0,0}, {1,0}, {2,0}, {3,0}], {{".",".","#"},{".",".","#"},{".","#","#"}, {".","#","#"}}) == [{0,0}, {1,0}, {2,0}, {3,0}]
+  end
+
+  test "Check get_next_directions" do
+    assert Day6.get_next_directions(3,0,:north,{{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == [{2,0},{1,0},{0,0}]
+    assert Day6.get_next_directions(0,0,:east,{{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == [{0,1},{0,2},{0,3}]
+    assert Day6.get_next_directions(0,3,:west,{{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == [{0,2},{0,1},{0,0}]
+    assert Day6.get_next_directions(0,0,:south,{{".",".","#"},{".",".","#"},{"#","#","#"}, {".","#","#"}}) == [{1,0},{2,0},{3,0}]
+  end
+
+  test "Check get_next_directions and find_span gives expected span" do
+    matrix = {{".",".","."},{".",".","#"},{"#",".","#"}, {".",".","#"}}
+    assert Day6.find_span(Day6.get_next_directions(2,1,:north, matrix), matrix) == [{1,1}, {0,1}]
+    assert Day6.find_span(Day6.get_next_directions(0,1,:south, matrix), matrix) == [{1,1}, {2,1}, {3,1}]
+    assert Day6.find_span(Day6.get_next_directions(1,0,:east, matrix), matrix) == [{1,1}]
+    assert Day6.find_span(Day6.get_next_directions(0,2,:west, matrix), matrix) == [{0,1},{0,0}]
+  end
+
+  test "Check correct detection of block causing turn" do
+    assert Day6.detect_block_causing_turns([{1,0,:north},{1,0,:east}]) == [{1,0, :north}]
+  end
+
+
   test "Check IO with part1" do
     assert Day6.part1("data/day6_sample.txt") == 41
+    #assert Day6.part2("data/day6_sample.txt") == 6
   end
 
 end

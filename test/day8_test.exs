@@ -63,4 +63,12 @@ defmodule Day8Test do
     end
   end
 
+  test "Check get points in both directions" do
+    assert Day8.get_points_both_directions({4,4},{5,5},10,10) == [{6,6},{7,7},{8,8},{9,9},{3,3},{2,2},{1,1},{0,0}]
+  end
+
+  test "check generate map" do
+    assert Day8.generate_map_from_split_str(".A.\nBB.") == %{"A"=>[{0,1}], "B"=>[{1,0}, {1,1}]}
+  end
+
 end

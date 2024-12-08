@@ -36,4 +36,34 @@ defmodule Day8 do
     end)
   end
 
+def get_points_both_directions(pt1, pt2, x_size, y_size) do
+  slope = get_slope(pt1,pt2)
+  next = get_points_in_direction_on_board(pt2, slope, :next, x_size, y_size)
+  previous = get_points_in_direction_on_board(pt1, slope, :previous, x_size, y_size)
+  tl(next)++tl(previous)
+end
+
+  def generate_map_from_split_str(str) do
+    Enum.reduce(
+      Enum.with_index(
+        String.split(str, "\n", trim: true)
+      ),
+      %{},
+      fn line, acc ->
+        Enum.reduce(
+          Enum.with_index(String.split(elem(line,0), "", trim: true)),
+          acc,
+          fn element, acc ->
+            elem_val = elem(element,0)
+            case elem_val do
+              x when x=="."-> acc
+              _ ->
+                Map.put(acc, elem(element,0), Map.get(acc, elem(element,0), [])++[{elem(line,1),elem(element,1)}])
+            end
+          end
+        )
+      end
+    )
+  end
+
 end

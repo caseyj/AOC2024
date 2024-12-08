@@ -19,4 +19,19 @@ defmodule UtilsTest do
     end
   end
 
+  for {row, column, expected} <- [
+    {0,0,true},
+    {0,-1,false},
+    {-1,-1,false},
+    {-1,0,false},
+    {20,20,false},
+    {20,19,false},
+    {19,20,false},
+    {19,19,true},
+  ] do
+    test "Checks check on map, coordinates #{row},#{column} expected #{expected}" do
+      assert Day6.check_on_map(unquote(row), unquote(column), 20,20) == unquote(expected)
+    end
+  end
+
 end

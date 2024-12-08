@@ -25,4 +25,13 @@ defmodule Utils do
       end
     end
   end
+
+  def check_on_map(row, column, size_x, size_y) do
+    if (row >= 0 and row<size_x) and (column >= 0 and column<size_y) do
+      true
+    else
+      false
+    end
+  end
+
 end

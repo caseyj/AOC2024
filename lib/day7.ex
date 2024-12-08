@@ -116,7 +116,7 @@ defmodule Day7 do
     correctness_tracker = %{:correct=>[],:incorrect=>[]}
     parsed_input = convert_input_str_to_list(content)
     initial_correct_track = count_successful_operations(parsed_input, [:sum, :mult], correctness_tracker)
-    cats_only = count_successful_operations(Map.get(initial_correct_track, :incorrect), [:sum, :mult, :cat], correctness_tracker)
+    cats_only = count_successful_operations(parsed_input, [:sum, :mult, :cat], correctness_tracker)
     count_correct(initial_correct_track)+count_correct(cats_only)
   end
 

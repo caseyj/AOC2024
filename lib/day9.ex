@@ -75,12 +75,59 @@ defmodule Day9 do
     end)
   end
 
+  def block_sort(block1, block2) do
+    elem(block1, 0) <= elem(block2,0)
+  end
+
   def defrag_to_sum(map) do
     Enum.reduce(Enum.with_index(Map.get(map, :defrag)), 0, fn elm, acc ->
       if elem(elm,0) == "." do
         acc
       else
         acc+(elem(elm, 0)*elem(elm, 1))
+      end
+    end)
+  end
+
+  def block_builder(block_id, start_id, end_id) do
+    {block_id, start_id, end_id, end_id - start_id}
+  end
+
+  def block_list_to_id_queue(block_list) do
+    Enum.reduce(block_list, %{}, fn x, acc ->
+      if elem(x,0) != "." do
+        map = Utils.map_append_lists(acc, elem(x, 3), [x])
+        Map.put(
+          acc,
+          elem(x, 3),
+          Enum.sort(
+            Map.get(map,elem(x, 3)),
+            &(elem(&1, 0) >= elem(&2, 0))
+        )
+      )
+      else
+        acc
+      end
+    end)
+  end
+
+
+
+  def decompose_to_blocks(block_list) do
+    block_list_w_enum = Enum.with_index(block_list)
+    Enum.reduce(block_list_w_enum, [], fn block, acc ->
+      if elem(block,1) > 0 do
+        eol = List.last(acc)
+        eol_index = length(acc) -1
+        if elem(block,0) == elem(eol,0) do
+          updated_val = block_builder(elem(eol,0), elem(eol,1), elem(block,1)+1)
+          acc = List.delete_at(acc, eol_index)
+          acc++[updated_val]
+        else
+          acc++[block_builder(elem(block,0), elem(block,1), elem(block,1)+1)]
+      end
+      else
+        acc++[block_builder(elem(block,0), elem(block,1), elem(block,1)+1)]
       end
     end)
   end

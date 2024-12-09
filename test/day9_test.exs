@@ -13,7 +13,7 @@ defmodule Day9Test do
   end
 
   for {input, input2, expected} <- [
-    {1,1,[0]},
+    {1,1,[1]},
     {2,9,[9,9]},
 
   ] do
@@ -66,6 +66,26 @@ defmodule Day9Test do
     assert Day9.defrag_to_sum(Day9.swap_one_digit_at_a_time(
       Day9.build_accum(String.split("2333133121414131402", "", trim: true))
     )) == 1928
+  end
+
+  test "Check new block objects" do
+    assert Day9.decompose_to_blocks([0,".",".",1,1,1,".",".",".",".",2,2,2,2,2]) == [{0,0,1,1}, {".", 1,3,2}, {1,3,6,3}, {".", 6,10,4}, {2, 10, 15,5}]
+  end
+
+  test "Check blocks can be moved into size map" do
+    assert Day9.block_list_to_id_queue([{0,0,1,1}, {".", 1,3,2}, {1,3,6,3}, {".", 6,10,4}, {2, 10, 15,5}]) == %{1=>[{0,0,1,1}], 3=>[{1,3,6,3}], 5=>[{2, 10, 15,5}]}
+    assert Day9.block_list_to_id_queue(
+      Day9.decompose_to_blocks(
+        Day9.build_accum(
+          String.split("2333133121414131402", "", trim: true)
+        )
+      )
+    ) == %{
+      1 => [{2, 11, 12, 1}],
+      2 => [{9, 40, 42, 2}, {4, 19, 21, 2}, {0, 0, 2, 2}],
+      3 => [{7, 32, 35, 3}, {3, 15, 18, 3}, {1, 5, 8, 3}],
+      4 => [{8, 36, 40, 4}, {6, 27, 31, 4}, {5, 22, 26, 4}]
+    }
   end
 
 end

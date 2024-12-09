@@ -34,4 +34,13 @@ defmodule Utils do
     end
   end
 
+  @spec map_append_lists(map(), any(), any()) :: map()
+  @doc"""
+  function automates adding elements to a map between arbitrary keys and lists at that key.
+
+  Assumes the default value for any key of a map is an empty list
+  """
+  def map_append_lists(map, key, list) do
+    Map.put(map, key, Map.get(map, key, [])++list)
+  end
 end

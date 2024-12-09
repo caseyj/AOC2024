@@ -71,4 +71,13 @@ defmodule Day8Test do
     assert Day8.generate_map_from_split_str(".A.\nBB.") == %{"A"=>[{0,1}], "B"=>[{1,0}, {1,1}]}
   end
 
+  test "Check self mix" do
+    assert Day8.self_mix_pairings([{1,2},{3,4},{5,6}]) == [[{1,2},{3,4}],[{1,2},{5,6}], [{3,4},{5,6}]]
+  end
+
+  test "Check part1" do
+    assert Day8.part1("data/day8_sample.txt") == 15
+    assert Day8.part2("data/day8_sample.txt") == 29
+  end
+
 end

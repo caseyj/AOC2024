@@ -57,7 +57,7 @@ defmodule Day9Test do
   test "Check swap" do
     current_defrag = [0,".",".",1,1,1,".",".",".",".",2,2,2,2,2]
     current_defrag_as_tuple = List.to_tuple(Enum.with_index(current_defrag))
-    swap = Day9.swap(current_defrag, elem(current_defrag_as_tuple, 14), 1)
+    swap = Day9.swap(current_defrag, elem(current_defrag_as_tuple, 14), 1, ".")
     assert length(swap) == length(current_defrag)
     assert swap == [0,2,".",1,1,1,".",".",".",".",2,2,2,2,"."]
   end
@@ -86,6 +86,20 @@ defmodule Day9Test do
       3 => [{7, 32, 35, 3}, {3, 15, 18, 3}, {1, 5, 8, 3}],
       4 => [{8, 36, 40, 4}, {6, 27, 31, 4}, {5, 22, 26, 4}]
     }
+  end
+
+  test "Check reindex" do
+    # assert Day9.block_resort([{0, 0, 2, 2}, {".", 2, 5, 3}, {1, 5, 8, 3}, {".", 8, 11, 3}, {2, 11, 12, 1}, {".", 12, 15, 3}, {3, 15, 18, 3}, {".", 18, 19, 1}, {4, 19, 21, 2}, {".", 21, 22, 1}, {5, 22, 26, 4}, {".", 26, 27, 1}, {6, 27, 31, 4}, {".", 31, 32, 1}, {7, 32, 35, 3}, {".", 35, 36, 1}, {8, 36, 40, 4}, {9, 40, 42, 2}]) == []
+      assert 1==1
+  end
+
+  test "Check map search for space" do
+    assert Day9.map_search_for_space(3, %{
+      1 => [{2, 11, 12, 1}],
+      2 => [{9, 40, 42, 2}, {4, 19, 21, 2}, {0, 0, 2, 2}],
+      3 => [{7, 32, 35, 3}, {3, 15, 18, 3}, {1, 5, 8, 3}],
+      4 => [{8, 36, 40, 4}, {6, 27, 31, 4}, {5, 22, 26, 4}]
+    }) == {2,9}
   end
 
 end

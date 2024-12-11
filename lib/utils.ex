@@ -43,4 +43,53 @@ defmodule Utils do
   def map_append_lists(map, key, list) do
     Map.put(map, key, Map.get(map, key, [])++list)
   end
+
+
+  @spec parse_string_to_two_tuple(binary()) :: tuple()
+  @doc """
+  Parses a string first by newlines, then by each element in each resuling string
+  This function is exceptionally useful for building grid datastructures
+
+  Example:
+  "123\\n456" -> {{"1",2,3},{4,5,6}}
+  """
+  def parse_string_to_two_tuple(str) do
+    List.to_tuple(Enum.map(String.split(str, "\n", trim: true), fn x -> List.to_tuple(String.split(x, "", trim: true)) end))
+  end
+
+
+  @doc """
+  Parses a string first by newlines, then by each element in each resuling string
+  This function is exceptionally useful for building grid datastructures
+
+  Example:
+  "123\\n456" -> {{1,2,3},{4,5,6}}
+  """
+  def parse_string_to_two_tuple(str, element_fn) do
+    List.to_tuple(Enum.map(String.split(str, "\n", trim: true), fn x -> List.to_tuple(Enum.map(String.split(x, "", trim: true), fn x -> element_fn.(x) end)) end))
+  end
+
+  @spec get_pot_next_steps(integer(), integer(), :north | :northeast | :east | :southeast | :south | :southwest | :west | :northwest, integer()) :: tuple()
+  @doc """
+  From a list of directions and a distance, this function will return a list
+  of the next two-tuple pairs of points with no filtering on validity
+  """
+  def get_pot_next_steps(row, column, directions, distance) do
+    Enum.reduce(directions, [], fn x, acc ->
+      acc++[Utils.direction_operator(row, column, x, distance)]
+    end)
+  end
+
+  @spec get_value_from_2d_tuple(tuple(), non_neg_integer(), non_neg_integer()) :: any()
+  @doc """
+  Assists in retrieving values from 2d tuple matrices
+  """
+  def get_value_from_2d_tuple(matrix, row, column) do
+    elem(elem(matrix, row), column)
+  end
+
+  def print_tuple(tup) do
+    "{#{Enum.join(Tuple.to_list(tup), ",")}}"
+  end
+
 end

@@ -34,4 +34,22 @@ defmodule UtilsTest do
     end
   end
 
+  test "Check parse functions properly" do
+    assert Utils.parse_string_to_two_tuple(".#.\n.^.") == {{".","#","."},{".","^","."}}
+  end
+
+  test "Check get potential next steps" do
+    assert Utils.get_pot_next_steps(0,0,[:north, :south, :east, :west], 1) == [
+      {-1,0}, {1,0}, {0,1}, {0,-1}
+    ]
+  end
+
+  test "Check get value from 2d tuple" do
+    assert Utils.get_value_from_2d_tuple({{".","#","."},{".","^","."}}, 1,1) == "^"
+  end
+
+  test "Print tuple" do
+    assert Utils.print_tuple({1,2,3}) == "{1,2,3}"
+  end
+
 end

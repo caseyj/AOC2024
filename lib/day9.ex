@@ -41,13 +41,13 @@ defmodule Day9 do
     Enum.reduce_while(Enum.reverse(enum_w_index), 0, fn x, _ -> if elem(x,0)!="." do {:halt, elem(x,1)} else {:cont, 0} end end)
   end
 
-  def swap(current_defrag, swap_val,swap_spot_left) do
+  def swap(current_defrag, swap_val,swap_spot_left, insert_val) do
     swap_v = elem(swap_val, 0)
     swap_spot_right = elem(swap_val,1)
     delete_original_spot = List.delete_at(current_defrag, swap_spot_left)
     insert_swap_value = List.insert_at(delete_original_spot, swap_spot_left, swap_v)
     delete_swap_spot = List.delete_at(insert_swap_value, swap_spot_right)
-    List.insert_at(delete_swap_spot, swap_spot_right,".")
+    List.insert_at(delete_swap_spot, swap_spot_right,insert_val)
   end
 
   @spec swap_one_digit_at_a_time(list()) :: map()
@@ -65,7 +65,7 @@ defmodule Day9 do
           val = elem(current_defrag_as_tuple, indx)
 
         if elem(val,0)=="." do
-          acc = Map.put(acc, :defrag, swap(Map.get(acc, :defrag), elem(current_defrag_as_tuple, Map.get(acc, :seek)), indx))
+          acc = Map.put(acc, :defrag, swap(Map.get(acc, :defrag), elem(current_defrag_as_tuple, Map.get(acc, :seek)), indx, "."))
           {:cont, Map.put(acc, :seek, get_next_index_of_non_free_space(Enum.with_index(Map.get(acc, :defrag))))}
         else
           {:cont, acc}
@@ -73,10 +73,6 @@ defmodule Day9 do
       end
 
     end)
-  end
-
-  def block_sort(block1, block2) do
-    elem(block1, 0) <= elem(block2,0)
   end
 
   def defrag_to_sum(map) do
@@ -111,8 +107,6 @@ defmodule Day9 do
     end)
   end
 
-
-
   def decompose_to_blocks(block_list) do
     block_list_w_enum = Enum.with_index(block_list)
     Enum.reduce(block_list_w_enum, [], fn block, acc ->
@@ -131,6 +125,70 @@ defmodule Day9 do
       end
     end)
   end
+
+def map_search_for_space(space_size, map) do
+  Enum.reduce(space_size..0, {}, fn x,acc ->
+    if Map.get(map, x) do
+      map_val = elem(hd(Map.get(map, x)),0)
+      if tuple_size(acc) == 2 do
+        if map_val > elem(acc, 1) do
+          {x, map_val}
+        else
+          acc
+        end
+      else
+        {x, map_val}
+      end
+    else
+      acc
+    end
+  end)
+end
+
+def split_period() do
+
+end
+
+def block_resort(blocks_list) do
+  indexed_blocks = Enum.with_index(blocks_list)
+  Enum.reduce_while(true, %{:defrag=>indexed_blocks, :seek=>0, :indx_map => block_list_to_id_queue(blocks_list)}, fn _, acc ->
+    defrag = Map.get(acc, :defrag)
+    seek = Map.get(acc, :seek)
+    if seek == length(blocks_list) do
+      {:halt, acc}
+    else
+      {:ok, content} = Enum.fetch(defrag, seek)
+      if elem(content,0) != "." do
+        {:cont, Map.put(acc, :seek, seek+1)}
+      else
+        {index, value} = map_search_for_space(elem(content, 3), Map.get(acc, :indx_map))
+        if index < elem(content,3) do
+          deleted_original = List.delete_at(defrag, seek)
+          insert_block_equal = List.insert_at(
+            deleted_original,
+            seek,
+            {
+              elem(content,0),
+              elem(content,1),
+              elem(content,2)-index,
+              index
+            })
+          insert_remaining = List.insert_at(
+              insert_block_equal,
+              seek,
+              {
+                elem(content,0),
+                elem(content,1)+index,
+                elem(content,2),
+                elem(content,3)-index
+              })
+          #swap(insert_remaining)
+        end
+    end
+    end
+
+  end)
+end
 
   def part1(filename) do
     {:ok, content} = File.read(filename)

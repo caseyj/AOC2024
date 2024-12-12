@@ -1,21 +1,19 @@
 # Advent2024
 
-**TODO: Add description**
+My Solutions for the 2024 editions of [Advent of Code](https://adventofcode.com)
 
-## Installation
+To Run any solution run the following command. It requires that you have a directory in this environment called `data` and a given day's input is in a file in that directory; for example, for day 1: `data/day1.txt`
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `advent2024` to your list of dependencies in `mix.exs`:
+## Run Instructions
 
-```elixir
-def deps do
-  [
-    {:advent2024, "~> 0.1.0"}
-  ]
-end
+```bash
+mix DayRun Day1 # runs the first days challenge
+```
+
+## Test Suite
+```bash
+mix test
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/advent2024>.
 

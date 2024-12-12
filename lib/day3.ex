@@ -1,5 +1,4 @@
 defmodule Day3 do
-
   def scan_str_w_pat(str) do
     Regex.scan(~r/(mul\(\d+,\d+\))/, str)
   end
@@ -25,8 +24,8 @@ defmodule Day3 do
     if lst == [] do
       []
     else
-      split_list = Enum.split_while(lst, fn x -> hd(x)!= "don't()" end)
-      elem(split_list,0)++until_do(elem(split_list,1))
+      split_list = Enum.split_while(lst, fn x -> hd(x) != "don't()" end)
+      elem(split_list, 0) ++ until_do(elem(split_list, 1))
     end
   end
 
@@ -34,9 +33,8 @@ defmodule Day3 do
     if lst == [] do
       []
     else
-      until_dont(elem(Enum.split_while(lst, fn x -> hd(x)!= "do()" end), 1))
+      until_dont(elem(Enum.split_while(lst, fn x -> hd(x) != "do()" end), 1))
     end
-
   end
 
   def part1(path) do
@@ -49,6 +47,4 @@ defmodule Day3 do
     data = until_dont(scan_str_w_do_dont(contents))
     get_sum_big_str(data)
   end
-
-
 end

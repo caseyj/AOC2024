@@ -7,9 +7,9 @@ defmodule Mix.Tasks.DayRun do
   @impl Mix.Task
   def run(args) do
     args_n = List.to_tuple(args)
-    module_name = "Elixir.#{elem(args_n,0)}"
+    module_name = "Elixir.#{elem(args_n, 0)}"
     module = String.to_existing_atom(module_name)
-    filename = "data/#{String.downcase(elem(args_n,0))}.txt"
+    filename = "data/#{String.downcase(elem(args_n, 0))}.txt"
     IO.puts(module.part1(filename))
     IO.puts(module.part2(filename))
   end

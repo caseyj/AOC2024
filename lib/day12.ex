@@ -1,24 +1,24 @@
 defmodule Day12 do
-
-
-
   @spec get_letter_neighbors(integer(), integer(), list()) :: list()
   @doc """
   Function that gets the neighbors of a given coordinate pair that are members of a list
   """
-  def get_letter_neighbors(letter_row, letter_column,letter_coords_list) do
-    next_steps = Utils.get_pot_next_steps(
-      letter_row,
-      letter_column,
-      [:north,:south,:east,:west],
-      1)
-      Enum.reduce(next_steps, [], fn x, acc ->
-        if Enum.member?(letter_coords_list, x) do
-          acc++[x]
-        else
-          acc
-        end
-      end)
+  def get_letter_neighbors(letter_row, letter_column, letter_coords_list) do
+    next_steps =
+      Utils.get_pot_next_steps(
+        letter_row,
+        letter_column,
+        [:north, :south, :east, :west],
+        1
+      )
+
+    Enum.reduce(next_steps, [], fn x, acc ->
+      if Enum.member?(letter_coords_list, x) do
+        acc ++ [x]
+      else
+        acc
+      end
+    end)
   end
 
   @spec add_to_list_if_missing(any(), any()) :: any()
@@ -26,9 +26,9 @@ defmodule Day12 do
   Helper function that adds the members of a donor list, to a recieving list if the members are not yet represented in the receiver list
   """
   def add_to_list_if_missing(recieving_list, donor_list) do
-    Enum.reduce(donor_list, recieving_list, fn donor, acc->
+    Enum.reduce(donor_list, recieving_list, fn donor, acc ->
       if Enum.member?(recieving_list, donor) == false do
-        acc++[donor]
+        acc ++ [donor]
       else
         acc
       end
@@ -53,22 +53,21 @@ defmodule Day12 do
   @doc """
   For a given starting coordinate, iterate over connected neighboring members of its polygon.
   """
-  def get_polygon_from_starting_point(starting_coord,letter_list) do
+  def get_polygon_from_starting_point(starting_coord, letter_list) do
     Enum.reduce_while(
       0..length(letter_list),
-      %{:queue=>[starting_coord], :collected=>[starting_coord]},
+      %{:queue => [starting_coord], :collected => [starting_coord]},
       fn _, acc ->
         current = hd(Map.get(acc, :queue))
         next = tl(Map.get(acc, :queue))
         neighbors = get_letter_neighbors(elem(current, 0), elem(current, 1), letter_list)
         enqueue = add_to_list_if_missing(next, neighbors)
         collected = add_to_list_if_missing(Map.get(acc, :collected), neighbors)
-        remaining = %{:queue=> enqueue, :collected=>collected}
+        remaining = %{:queue => enqueue, :collected => collected}
         halt_when_list_zero(remaining, :queue)
-
-    end)
+      end
+    )
   end
-
 
   @spec get_polygons_for_letter(map(), any()) :: any()
   @doc """
@@ -76,15 +75,23 @@ defmodule Day12 do
   """
   def get_polygons_for_letter(letter_map, letter) do
     letter_coords = Map.get(letter_map, letter)
-    Enum.reduce_while(0..length(letter_coords), %{:queue=>letter_coords ,:result=>[]},
-    fn coord, acc ->
-      current_results = Map.get(acc, :result)
-      polygon_result_map = get_polygon_from_starting_point(coord, letter_coords)
-      polygon_collected = Map.get(polygon_result_map, :collected)
-      new_queue = Enum.filter(Map.get(acc, :queue), fn queued -> Enum.member?(polygon_collected, queued)==false end)
-      remaining = %{:queue=> new_queue, :result=>current_results++[polygon_collected]}
-      halt_when_list_zero(remaining, :queue)
-    end)
-  end
 
+    Enum.reduce_while(
+      0..length(letter_coords),
+      %{:queue => letter_coords, :result => []},
+      fn coord, acc ->
+        current_results = Map.get(acc, :result)
+        polygon_result_map = get_polygon_from_starting_point(coord, letter_coords)
+        polygon_collected = Map.get(polygon_result_map, :collected)
+
+        new_queue =
+          Enum.filter(Map.get(acc, :queue), fn queued ->
+            Enum.member?(polygon_collected, queued) == false
+          end)
+
+        remaining = %{:queue => new_queue, :result => current_results ++ [polygon_collected]}
+        halt_when_list_zero(remaining, :queue)
+      end
+    )
+  end
 end

@@ -25,41 +25,50 @@ defmodule Day11 do
     end
   end
 
-  def memoize(memo, stone, result) do
-    %{:result=>Map.get(memo, :result),
-    :memo=>Map.put(Map.get(memo, :memo), stone, result)}
-  end
+  #def new_task_each_stone(stones, agent, incmap, supervisor, blinks) do
+  #  Enum.map(stones, fn stone ->
+  #    Task.Supervisor.async(supervisor, fn -> stone_line([stone], agent, incmap, supervisor, blinks-1)end)
+  #  end)
+  #end
 
-  def check_if_memo_has_stone(memo, stone) do
-    Map.has_key?(Map.get(memo, :memo), stone)
-  end
+  def stone_line(stone_line, agent, incmap, blinks) do
+    if blinks != 0 do
+      stone = stone_line
+      memo_stone = KV.get(agent, stone)
+      if memo_stone do
+        #new_task_each_stone(memo_stone, agent, incmap, supervisor, blinks)
+        if length(memo_stone) == 2 do
+          tasks = Task.async(fn -> stone_line(hd(tl(memo_stone)), agent, incmap, blinks-1) end)
+          Task.await(tasks, :infinity) + stone_line(hd(memo_stone), agent, incmap, blinks-1)
+        else
+          stone_line(hd(memo_stone), agent, incmap, blinks-1)
+        end
+      else
+        result = stone_response(stone)
+        KV.put(agent, stone, result)
+        #new_task_each_stone(memo_stone, agent, incmap, supervisor, blinks)
 
-  def add_stone_to_results_list(memo, result) do
-    Utils.map_append_lists(memo, :result, result)
-  end
+        if length(result) == 2 do
+          tasks = Task.async(fn -> stone_line(hd(result), agent, incmap, blinks-1)end)
+          Task.await(tasks, :infinity) + stone_line(hd(tl(result)), agent, incmap, blinks-1)
 
-  def get_memoized_value(memo, stone) do
-    Map.get(Map.get(memo, :memo), stone)
-  end
 
-  def stone_line(memo) do
-    Enum.reduce(Map.get(memo, :result), %{:result=>[], :memo=>Map.get(memo, :memo)}, fn stone, acc ->
-    if check_if_memo_has_stone(acc, stone) do
-      add_stone_to_results_list(acc, get_memoized_value(acc, stone))
+        else
+          stone_line(hd(result), agent, incmap, blinks-1)
+        end
+      end
     else
-      result = stone_response(stone)
-      memoize(add_stone_to_results_list(acc, result), stone, result)
+      1
     end
-    end)
   end
 
-  def blink_n_times(memo,blinks) do
-    if blinks == 0 do
-      memo
-    else
-      blink_n_times(stone_line(memo), blinks-1)
-    end
-  end
+  #def blink_n_times(memo,agent, supervisor, blinks) do
+    #if blinks == 0 do
+     # memo
+    #else
+    #  blink_n_times(stone_line(memo, agent, supervisor), agent, supervisor,blinks-1)
+   # end
+  #end
 
 def part1(filename) do
   part1(filename, 25)
@@ -67,17 +76,34 @@ end
 
   def part1(filename,blink_count) do
     {:ok, content} = File.read(filename)
-    Map.get(Enum.reduce(
-      Enum.map(
-        String.split(content, " ", trim: true),
-        fn x -> Utils.to_int(x) end),
-      %{:result=>0, :memo=>%{}},
-      fn number, acc ->
-        blinked = blink_n_times(%{:result=>[number], :memo=>Map.get(acc, :memo)}, blink_count)
-        count = Enum.count(Map.get(blinked, :result))
-        %{:result=>Map.get(acc, :result)+count, :memo=>Map.get(blinked, :memo)}
-      end
-    ), :result)
+    {:ok, agent} = KV.start()
+    {:ok, incrementor_map} = IncMap.start()
+
+    #{:ok, supervisor} = Supervisor.start_link([
+    #  {Task.Supervisor, name: MyApp.TaskSupervisor}
+    #], strategy: :one_for_one)
+
+    strings_split = Enum.map(
+      String.split(
+        content,
+        " ",
+        trim: true), fn x -> Utils.to_int(x) end)
+
+    tasks = Enum.map(strings_split, fn x ->
+      Task.async(fn -> stone_line(
+      x,
+      agent,
+      incrementor_map,
+
+      blink_count
+    )end) end)
+
+    Enum.sum(Task.await_many(tasks, :infinity))
+
+
+    #Task.await_many(tasks,:infinity)
+    #IncMap.map_value_sum(incrementor_map)
+
   end
 
   def part2(filename) do

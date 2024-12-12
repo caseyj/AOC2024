@@ -161,7 +161,7 @@ def block_resort(blocks_list) do
       if elem(content,0) != "." do
         {:cont, Map.put(acc, :seek, seek+1)}
       else
-        {index, value} = map_search_for_space(elem(content, 3), Map.get(acc, :indx_map))
+        {index, _} = map_search_for_space(elem(content, 3), Map.get(acc, :indx_map))
         if index < elem(content,3) do
           deleted_original = List.delete_at(defrag, seek)
           insert_block_equal = List.insert_at(
@@ -173,7 +173,7 @@ def block_resort(blocks_list) do
               elem(content,2)-index,
               index
             })
-          insert_remaining = List.insert_at(
+          _ = List.insert_at(
               insert_block_equal,
               seek,
               {

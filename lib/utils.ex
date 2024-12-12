@@ -92,4 +92,27 @@ defmodule Utils do
     "{#{Enum.join(Tuple.to_list(tup), ",")}}"
   end
 
+  def generate_map_from_split_str(str) do
+    Enum.reduce(
+      Enum.with_index(
+        String.split(str, "\n", trim: true)
+      ),
+      %{},
+      fn line, acc ->
+        Enum.reduce(
+          Enum.with_index(String.split(elem(line,0), "", trim: true)),
+          acc,
+          fn element, acc ->
+            elem_val = elem(element,0)
+            case elem_val do
+              x when x=="."-> acc
+              _ ->
+                Map.put(acc, elem(element,0), Map.get(acc, elem(element,0), [])++[{elem(line,1),elem(element,1)}])
+            end
+          end
+        )
+      end
+    )
+  end
+
 end

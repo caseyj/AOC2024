@@ -15,7 +15,6 @@ defmodule IncMap do
 
   def map_value_sum(agent) do
     map_keys = Agent.get(agent,  &Map.keys/1)
-    map = Agent.get(agent, &Map.values/1)
     Enum.reduce(map_keys, 0, fn key, acc ->
       acc+get(agent, key)
     end)

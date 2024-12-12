@@ -52,4 +52,9 @@ defmodule UtilsTest do
     assert Utils.print_tuple({1,2,3}) == "{1,2,3}"
   end
 
+  test "check generate map" do
+    assert Utils.generate_map_from_split_str(".A.\nBB.") == %{"A"=>[{0,1}], "B"=>[{1,0}, {1,1}]}
+    assert Utils.generate_map_from_split_str("CAC\nBBD") == %{"A"=>[{0,1}], "B"=>[{1,0}, {1,1}], "C"=>[{0,0},{0,2}], "D"=>[{1,2}]}
+  end
+
 end

@@ -79,9 +79,10 @@ defmodule Day12 do
     Enum.reduce_while(
       0..length(letter_coords),
       %{:queue => letter_coords, :result => []},
-      fn coord, acc ->
+      fn _, acc ->
+        current_queue = Map.get(acc, :queue)
         current_results = Map.get(acc, :result)
-        polygon_result_map = get_polygon_from_starting_point(coord, letter_coords)
+        polygon_result_map = get_polygon_from_starting_point(hd(current_queue), letter_coords)
         polygon_collected = Map.get(polygon_result_map, :collected)
 
         new_queue =
@@ -93,5 +94,46 @@ defmodule Day12 do
         halt_when_list_zero(remaining, :queue)
       end
     )
+  end
+
+  @spec area(list()) :: non_neg_integer()
+  @doc """
+  Gets the "Area" occupied by a list of points
+  """
+  def area(polygon) do
+    Enum.count(polygon)
+  end
+
+  @spec neighbors_count(tuple(), list()) :: integer()
+  @doc """
+  Calculates how many sides of this point of the polygon are exposed to the outside of the polygon.
+  """
+  def neighbors_count(point, polygon) do
+    4 -
+      Enum.count(
+        Enum.filter(
+          Utils.get_pot_next_steps(
+            elem(point, 0),
+            elem(point, 1),
+            [:north, :south, :east, :west],
+            1
+          ),
+          fn neighbor -> Enum.member?(polygon, neighbor) == true end
+        )
+      )
+  end
+
+  @spec perimeter(list()) :: integer()
+  @doc """
+  Calculates the "perimeter" of a polygon by adding the number of sides exposed to the outside.
+  """
+  def perimeter(polygon) do
+    Enum.reduce(polygon, 0, fn point, acc ->
+      acc + neighbors_count(point, polygon)
+    end)
+  end
+
+  def cost(polygon) do
+    perimeter(polygon) * area(polygon)
   end
 end

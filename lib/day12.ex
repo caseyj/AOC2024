@@ -49,24 +49,26 @@ defmodule Day12 do
     end
   end
 
-  @spec get_polygon_from_starting_point(any(), list()) :: any()
   @doc """
   For a given starting coordinate, iterate over connected neighboring members of its polygon.
   """
-  def get_polygon_from_starting_point(starting_coord, letter_list) do
-    Enum.reduce_while(
-      0..length(letter_list),
-      %{:queue => [starting_coord], :collected => [starting_coord]},
-      fn _, acc ->
-        current = hd(Map.get(acc, :queue))
-        next = tl(Map.get(acc, :queue))
-        neighbors = get_letter_neighbors(elem(current, 0), elem(current, 1), letter_list)
-        enqueue = add_to_list_if_missing(next, neighbors)
-        collected = add_to_list_if_missing(Map.get(acc, :collected), neighbors)
-        remaining = %{:queue => enqueue, :collected => collected}
-        halt_when_list_zero(remaining, :queue)
-      end
-    )
+  def get_polygon_from_starting_point(queue, seen, collector, letter_list) do
+    if length(queue) == 0 do
+      collector
+    else
+      current = hd(queue)
+      seen = seen ++ [current]
+      next = tl(queue)
+      neighbors = get_letter_neighbors(elem(current, 0), elem(current, 1), letter_list)
+
+      enqueue =
+        Enum.filter(add_to_list_if_missing(next, neighbors), fn neighbor ->
+          Enum.member?(seen, neighbor) == false
+        end)
+
+      collected = add_to_list_if_missing(collector, neighbors)
+      get_polygon_from_starting_point(enqueue, seen, collected, letter_list)
+    end
   end
 
   @spec get_polygons_for_letter(map(), any()) :: any()
@@ -82,8 +84,14 @@ defmodule Day12 do
       fn _, acc ->
         current_queue = Map.get(acc, :queue)
         current_results = Map.get(acc, :result)
-        polygon_result_map = get_polygon_from_starting_point(hd(current_queue), letter_coords)
-        polygon_collected = Map.get(polygon_result_map, :collected)
+
+        polygon_collected =
+          get_polygon_from_starting_point(
+            [hd(current_queue)],
+            [],
+            [hd(current_queue)],
+            letter_coords
+          )
 
         new_queue =
           Enum.filter(Map.get(acc, :queue), fn queued ->
@@ -135,5 +143,20 @@ defmodule Day12 do
 
   def cost(polygon) do
     perimeter(polygon) * area(polygon)
+  end
+
+  def all_region_cost(polygons) do
+    Enum.sum(Enum.map(polygons, fn polygon -> cost(polygon) end))
+  end
+
+  def total_cost(grid_map) do
+    Enum.reduce(Map.keys(grid_map), 0, fn letter, acc ->
+      acc + all_region_cost(Map.get(get_polygons_for_letter(grid_map, letter), :result))
+    end)
+  end
+
+  def part1(filename) do
+    {:ok, content} = File.read(filename)
+    total_cost(Utils.generate_map_from_split_str(content))
   end
 end

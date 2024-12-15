@@ -1,4 +1,5 @@
 defmodule Day8 do
+
   @doc """
   Creates a sum between two, tuples where elem x in both tuples is summed.
   """
@@ -8,10 +9,16 @@ defmodule Day8 do
     )
   end
 
+  @spec negate_tuple(tuple()) :: tuple()
+  @doc """
+  Given a tuple of integers, return a tuple where each element is multiplied by -1
+  """
   def negate_tuple(tup) do
-    List.to_tuple(Enum.map(Tuple.to_list(tup), fn x -> x * -1 end))
+    List.to_tuple(
+      Enum.map(Tuple.to_list(tup), fn x -> x * -1 end))
   end
 
+  @spec get_slope(tuple(), tuple()) :: tuple()
   @doc """
   Gets the slope between two points defined by a tuple {x_difference, y_difference}
   """
@@ -127,6 +134,8 @@ defmodule Day8 do
     self_mix_pairings(Map.get(map, key))
   end
 
+
+  @spec get_points_for_all_keys(map(), any(), any(), any()) :: any()
   def get_points_for_all_keys(map, size_x, size_y, type) do
     Enum.reduce(Map.keys(map), [], fn key, acc ->
       Enum.reduce(find_points_for_key(map, key), acc, fn pt_pair, acc ->
@@ -151,13 +160,32 @@ defmodule Day8 do
     all_pts
   end
 
-  def part2(filename) do
+  def get_points_from_str(filename) do
     {:ok, content} = File.read(filename)
     map = generate_map_from_split_str(content)
     split_n = String.split(content, "\n", trim: true)
     x_length = length(split_n)
     y_length = String.length(hd(split_n))
-    all_pts = get_unique_all_pts(get_points_for_all_keys(map, x_length, y_length, :all))
+    get_points_for_all_keys(map, x_length, y_length, :all)
+  end
+
+  def part2(filename) do
+    {:ok, content} = File.read(filename)
+    map = generate_map_from_split_str(content)
+    original_spots = Enum.reduce(map, [], fn {_,v}, acc ->
+      acc++[v]
+    end)
+    split_n = String.split(content, "\n", trim: true)
+    x_length = length(split_n)
+    y_length = String.length(hd(split_n))
+    all_pts = get_unique_all_pts(
+      Enum.filter(
+        get_points_for_all_keys(map, x_length, y_length, :all),
+        fn point ->
+          Enum.member?(original_spots, point) == false
+        end
+      )
+    )
     all_pts
   end
 end

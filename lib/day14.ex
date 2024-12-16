@@ -109,8 +109,8 @@ defmodule Day14 do
   end
 
   def part2(filename) do
-    {:ok, content} = File.read(filename)
-    Enum.reduce()
+    {:ok, _} = File.read(filename)
+
   end
 
 end

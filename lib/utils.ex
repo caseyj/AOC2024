@@ -7,7 +7,7 @@ defmodule Utils do
   @doc """
   Gets the next position from a starting coordinate, direction, and number of spaces.
   """
-  @spec direction_operator(any(), any(), any(), any()) :: {integer(), integer()}
+  @spec direction_operator(integer(), integer(), :north | :northeast | :east | :southeast | :south | :southwest | :west | :northwest, integer()) :: {integer(), integer()}
   def direction_operator(start_row, start_column, direction, distance) do
     if distance == 0 do
       {start_row, start_column}
@@ -117,6 +117,11 @@ defmodule Utils do
     "{#{Enum.join(Tuple.to_list(tup), ",")}}"
   end
 
+  @spec generate_map_from_split_str(binary()) :: map()
+  @doc """
+  This tool generates a map of detected objects and their coordinate pairs listed as {row#, column#}
+  The example map will give you %{"#"=>[{0,1},{2,2}], "S"=>[{0,5}]...}
+  """
   def generate_map_from_split_str(str) do
     Enum.reduce(
       Enum.with_index(String.split(str, "\n", trim: true)),
@@ -144,4 +149,41 @@ defmodule Utils do
       end
     )
   end
+
+  @doc """
+  An arbitrary Euclidean distance function that takes two, equally sized tuples and gives the L2 distance
+  """
+  def distance(current_point, target) do
+    :math.sqrt(Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1,x2}, acc ->
+      acc+:math.pow((x2-x1), 2)
+    end))
+  end
+
+  @doc """
+  Gives the manhattan distancce  between two equally sized tuples.
+  """
+  def manhattan(current_point, target) do
+    Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1,x2}, acc -> acc+abs(x2-x1) end)
+  end
+
+  @doc """
+  Given a list of objects that might be members of other lists, and the list of lists those objects are potentially in, filter the first list of objects down to only the objects that are not members of any list.
+
+  This function assumes the points list is a set of point objects that look like this
+  {{x,y}, :direction} and the {x,y} element is what cannot appear in other lists
+  """
+  def filter_elements_from_multiple_lists(points, lists) do
+    if lists == [] do
+      points
+    else
+      survivors = Enum.reduce(lists, points, fn list, acc ->
+        Enum.filter(acc, fn point ->
+          pt = elem(point,0)
+          member = Enum.member?(list, pt)
+          member==false end)
+      end)
+      survivors
+    end
+  end
+
 end

@@ -12,4 +12,8 @@ defmodule KV do
   def put(agent, k, v) do
     Agent.update(agent, &Map.put(&1, k, v))
   end
+
+  def print(agent) do
+    IO.inspect(Agent.get(agent, & &1))
+  end
 end

@@ -21,6 +21,36 @@ defmodule Day18Test do
     ]
   end
 
+  for {previous, previous_result, last_success,size, expected} <- [
+    {0, :ok, 0, 5, {0,1,2,3,4}},
+    {2, :ok, 2, 5, {2,3,4}},
+    {2, :fail, 0, 5, {0,1,2}}
+  ] do
+    test "find_next_half #{previous}, #{previous_result}, #{last_success}, #{size}, #{Utils.print_tuple(expected)}" do
+      assert Day18.find_next_half(
+        unquote(previous),
+        unquote(previous_result),
+        unquote(last_success),
+        unquote(size)) == unquote(Macro.escape(expected))
+    end
+  end
+
+
+  for {previous, previous_result, last_success,size, expected} <- [
+    {0, :ok, 0, 5, 3},
+    {2, :ok, 2, 5, 4},
+    {2, :fail, 0, 5, 1}
+  ] do
+    test "find_next_end_pos #{previous}, #{previous_result}, #{last_success}, #{size}, #{expected}" do
+      assert Day18.find_next_end_pos(Day18.find_next_half(
+        unquote(previous),
+        unquote(previous_result),
+        unquote(last_success),
+        unquote(size))) == unquote(expected)
+    end
+  end
+
+
   test "A_star correct results" do
     input_str = "5,4\n4,2\n4,5\n3,0\n2,1\n6,3\n2,4\n1,5\n0,6\n3,3\n2,6\n5,1\n1,2\n5,5\n2,5\n6,5\n1,4\n0,4\n6,4\n1,1\n6,1\n1,0\n0,5\n1,6\n2,0"
 
@@ -39,8 +69,9 @@ defmodule Day18Test do
   end
 
   test "part 2 " do
-    #Day18.part2("data/day18.txt")
-    assert 1==1
+    str = "5,4\n4,2\n4,5\n3,0\n2,1\n6,3\n2,4\n1,5\n0,6\n3,3\n2,6\n5,1\n1,2\n5,5\n2,5\n6,5\n1,4\n0,4\n6,4\n1,1\n6,1\n1,0\n0,5\n1,6\n2,0"
+    assert  Day18.search_for_last_viable_elem(str, 0, :ok, 0, {0,0}, {6,6}) == "6,1"
+
   end
 
 end

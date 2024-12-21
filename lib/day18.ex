@@ -46,8 +46,8 @@ defmodule Day18 do
 
   def find_next_half(previous, previous_result, last_success,size) do
     case previous_result do
-      x when x== :ok -> List.to_tuple(Enum.to_list(previous..size))
-      x when x== :fail ->List.to_tuple(Enum.to_list(last_success..previous+1))
+      x when x== :ok -> List.to_tuple(Enum.to_list(previous+1..size-1))
+      x when x== :fail ->List.to_tuple(Enum.to_list(last_success..previous-1))
     end
   end
 
@@ -60,14 +60,15 @@ defmodule Day18 do
     size = length(split_str)
     indices = find_next_half(previous, previous_result, last_success,size)
     if tuple_size(indices) == 1 do
-
-      List.pop_at(split_str,previous)
+      elem(List.pop_at(split_str,previous-1), 0)
     else
       next_prev = find_next_end_pos(indices)
       {result, _} = a_star_for_size_restricted_input(str_input, next_prev, start_pos, end_pos)
       if result == :ok do
+
         search_for_last_viable_elem(str_input, next_prev, result, next_prev,start_pos, end_pos)
       else
+
         search_for_last_viable_elem(str_input, next_prev, result, last_success,start_pos, end_pos)
       end
     end

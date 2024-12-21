@@ -70,32 +70,35 @@ defmodule UtilsTest do
   end
 
   for {current_point, target, expected} <- [
-    {{3,0}, {0,4}, 5.0},
-  ] do
+        {{3, 0}, {0, 4}, 5.0}
+      ] do
     test "Check distance #{Utils.print_tuple(current_point)}, #{Utils.print_tuple(target)}" do
       assert Utils.distance(unquote(current_point), unquote(target)) == unquote(expected)
     end
   end
 
   for {current_point, target, expected} <- [
-    {{3,0}, {0,4}, 7},
-    {{0,0}, {1,1}, 2},
-  ] do
+        {{3, 0}, {0, 4}, 7},
+        {{0, 0}, {1, 1}, 2}
+      ] do
     test "Check manhattan #{Utils.print_tuple(current_point)}, #{Utils.print_tuple(target)}" do
       assert Utils.manhattan(unquote(current_point), unquote(target)) == unquote(expected)
     end
   end
+
   for {str_desc, points, lists, expected} <- [
-    {"2 points not filtered",[{{3,0}, :north}, {{0,4}, :north}], [], [{{3,0}, :north}, {{0,4}, :north}]},
-    {"2 points filtered by 1 list",[{{3,0}, :north}, {{0,4}, :north}], [[{3,0},{0,4}]], []},
-    {"2 points filtered by 2 lists",[{{3,0}, :north}, {{0,4}, :north}], [[{3,0},{5,0}],[{0,4}]], []},
-    {"2 points filtered by 2 lists, 1 survivor",[{{3,0}, :north}, {{0,4}, :north}], [[{3,0},{5,0}],[{6,0}]], [{{0,4}, :north}]},
-  ] do
+        {"2 points not filtered", [{{3, 0}, :north}, {{0, 4}, :north}], [],
+         [{{3, 0}, :north}, {{0, 4}, :north}]},
+        {"2 points filtered by 1 list", [{{3, 0}, :north}, {{0, 4}, :north}], [[{3, 0}, {0, 4}]],
+         []},
+        {"2 points filtered by 2 lists", [{{3, 0}, :north}, {{0, 4}, :north}],
+         [[{3, 0}, {5, 0}], [{0, 4}]], []},
+        {"2 points filtered by 2 lists, 1 survivor", [{{3, 0}, :north}, {{0, 4}, :north}],
+         [[{3, 0}, {5, 0}], [{6, 0}]], [{{0, 4}, :north}]}
+      ] do
     test "Check filter_elements_from_multiple_lists #{str_desc}" do
-      assert Utils.filter_elements_from_multiple_lists(unquote(points), unquote(lists)) == unquote(expected)
+      assert Utils.filter_elements_from_multiple_lists(unquote(points), unquote(lists)) ==
+               unquote(expected)
     end
   end
-
-
-
 end

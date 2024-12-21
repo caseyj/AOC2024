@@ -1,8 +1,7 @@
 defmodule Day17 do
-
   def combo_operand(operand, agent) do
     case operand do
-      x when x>=0 and x<=3 -> x
+      x when x >= 0 and x <= 3 -> x
       x when x == 4 -> KV.get(agent, "A")
       x when x == 5 -> KV.get(agent, "B")
       x when x == 6 -> KV.get(agent, "C")
@@ -28,7 +27,7 @@ defmodule Day17 do
   end
 
   def jnz(agent, operand) do
-    if KV.get(agent, "A") !=0 do
+    if KV.get(agent, "A") != 0 do
       KV.put(agent, "instruction_pointer", operand)
       KV.put(agent, "jmp", true)
       {:ok}
@@ -38,12 +37,12 @@ defmodule Day17 do
   end
 
   def bxc(agent, _) do
-    KV.put(agent, "B", Bitwise.bxor(KV.get(agent, "B"), KV.get(agent, "C")) )
+    KV.put(agent, "B", Bitwise.bxor(KV.get(agent, "B"), KV.get(agent, "C")))
     {:ok}
   end
 
   def out(agent, operand) do
-    KV.put(agent, "out", KV.get(agent, "out")++[rem(combo_operand(operand, agent), 8)])
+    KV.put(agent, "out", KV.get(agent, "out") ++ [rem(combo_operand(operand, agent), 8)])
     {:ok}
   end
 
@@ -89,36 +88,50 @@ defmodule Day17 do
     if KV.get(agent, "jmp") do
       KV.put(agent, "jmp", false)
     else
-      KV.put(agent, "instruction_pointer", KV.get(agent, "instruction_pointer")+2)
+      KV.put(agent, "instruction_pointer", KV.get(agent, "instruction_pointer") + 2)
     end
   end
 
   def program_to_tuple(str) do
     init_split = hd(tl(String.split(str, ": ", trim: true)))
-    List.to_tuple(Enum.map(String.split(init_split, ",", trim: true), fn x-> Utils.to_int(x) end))
+
+    List.to_tuple(
+      Enum.map(String.split(init_split, ",", trim: true), fn x -> Utils.to_int(x) end)
+    )
   end
 
   def program_regex(str, agent) do
-    capture_map = Regex.named_captures(~r/Register A: (?<A>\d+)\W+Register B: (?<B>\d+)\W+Register C: (?<C>\d+)\W+Program: (?<program>.*)/, str)
-    Enum.reduce(["A","B","C"], :ok, fn letter, _ ->
+    capture_map =
+      Regex.named_captures(
+        ~r/Register A: (?<A>\d+)\W+Register B: (?<B>\d+)\W+Register C: (?<C>\d+)\W+Program: (?<program>.*)/,
+        str
+      )
+
+    Enum.reduce(["A", "B", "C"], :ok, fn letter, _ ->
       KV.put(agent, letter, Utils.to_int(Map.get(capture_map, letter)))
     end)
-    List.to_tuple(Enum.map(String.split(Map.get(capture_map, "program"), ",", trim: true), fn x-> Utils.to_int(x) end))
-  end
 
+    List.to_tuple(
+      Enum.map(String.split(Map.get(capture_map, "program"), ",", trim: true), fn x ->
+        Utils.to_int(x)
+      end)
+    )
+  end
 
   def run_program(agent, instructions) do
     instruction = KV.get(agent, "instruction_pointer")
     operand = instruction + 1
+
     if instruction >= tuple_size(instructions) do
-      Enum.join(KV.get(agent, "out"),",")
+      Enum.join(KV.get(agent, "out"), ",")
     else
-      {:ok} = operate_instructions(elem(instructions,instruction), elem(instructions,operand), agent)
+      {:ok} =
+        operate_instructions(elem(instructions, instruction), elem(instructions, operand), agent)
+
       increment_instruction_pointer(agent)
       run_program(agent, instructions)
     end
   end
-
 
   def part1(filename) do
     {:ok, agent} = initialize_registers()
@@ -127,7 +140,6 @@ defmodule Day17 do
   end
 
   def part2(filename) do
-
     IO.puts("NOT IMPLEMENTED YET")
   end
 end

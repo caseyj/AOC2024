@@ -7,7 +7,12 @@ defmodule Utils do
   @doc """
   Gets the next position from a starting coordinate, direction, and number of spaces.
   """
-  @spec direction_operator(integer(), integer(), :north | :northeast | :east | :southeast | :south | :southwest | :west | :northwest, integer()) :: {integer(), integer()}
+  @spec direction_operator(
+          integer(),
+          integer(),
+          :north | :northeast | :east | :southeast | :south | :southwest | :west | :northwest,
+          integer()
+        ) :: {integer(), integer()}
   def direction_operator(start_row, start_column, direction, distance) do
     if distance == 0 do
       {start_row, start_column}
@@ -154,16 +159,22 @@ defmodule Utils do
   An arbitrary Euclidean distance function that takes two, equally sized tuples and gives the L2 distance
   """
   def distance(current_point, target) do
-    :math.sqrt(Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1,x2}, acc ->
-      acc+:math.pow((x2-x1), 2)
-    end))
+    :math.sqrt(
+      Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1, x2},
+                                                                                       acc ->
+        acc + :math.pow(x2 - x1, 2)
+      end)
+    )
   end
 
   @doc """
   Gives the manhattan distancce  between two equally sized tuples.
   """
   def manhattan(current_point, target) do
-    Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1,x2}, acc -> acc+abs(x2-x1) end)
+    Enum.reduce(Enum.zip(Tuple.to_list(current_point), Tuple.to_list(target)), 0, fn {x1, x2},
+                                                                                     acc ->
+      acc + abs(x2 - x1)
+    end)
   end
 
   @doc """
@@ -176,14 +187,57 @@ defmodule Utils do
     if lists == [] do
       points
     else
-      survivors = Enum.reduce(lists, points, fn list, acc ->
-        Enum.filter(acc, fn point ->
-          pt = elem(point,0)
-          member = Enum.member?(list, pt)
-          member==false end)
-      end)
+      survivors =
+        Enum.reduce(lists, points, fn list, acc ->
+          Enum.filter(acc, fn point ->
+            pt = elem(point, 0)
+            member = Enum.member?(list, pt)
+            member == false
+          end)
+        end)
+
       survivors
     end
   end
 
+  @doc """
+  A heuristic for sorting assuming its between two tuples with a minimum of 4 constituent elements have
+  """
+  @spec heuristic(tuple(), tuple()) :: boolean()
+  def heuristic(object_a, object_b) do
+    a_score = elem(object_a, 2) + elem(object_a, 3)
+    b_score = elem(object_b, 2) + elem(object_b, 3)
+    a_score < b_score
+  end
+
+  @doc """
+  A largely generalized A star algorithm that assumes each element in the search is in the format
+  {{x, y}, direction, score, distance, history}
+
+  """
+  def a_star(queue, target, seen, walls) do
+    {{x, y}, direction, score, distance, history} = hd(queue)
+
+    if {x, y} == target do
+      {{x, y}, direction, score, distance, history}
+    else
+      queue_point_list = Enum.reduce(queue, [], fn q, acc -> acc ++ [elem(q, 0)] end)
+
+      points =
+        Enum.map([:north, :south, :east, :west], fn next_direction ->
+          {y, x} = direction_operator(y, x, next_direction, 1)
+          {{x, y}, next_direction}
+        end)
+        |> filter_elements_from_multiple_lists([queue_point_list, seen, walls])
+        |> Enum.filter(fn {{column, row}, _} ->
+          check_on_map(row, column, elem(target, 0) + 1, elem(target, 1) + 1) == true
+        end)
+        |> Enum.map(fn {point, new_direction} ->
+          {point, new_direction, score + 1, manhattan(point, target), history ++ [{x, y}]}
+        end)
+
+      new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
+      a_star(new_queue, target, seen ++ [{x, y}], walls)
+    end
+  end
 end

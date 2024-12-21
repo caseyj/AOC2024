@@ -101,10 +101,41 @@ defmodule Day8Test do
   end
 
   test "check part 2 works" do
-    antenae = [{0, 0}, {0, 1}, {0, 6}, {0, 11}, {1, 1}, {1, 3}, {2, 2}, {2, 4}, {2, 10}, {3, 2}, {3, 3}, {4, 9}, {5, 1}, {5, 5}, {5, 11}, {6, 3}, {6, 6}, {7, 0}, {7, 5}, {7, 7}, {8, 2}, {9, 4}, {10, 1}, {10, 10}, {11, 3}, {11, 10}, {11, 11}]
-    data_vals = Day8.get_points_from_str("data/day8_sample.txt")
-    filtered = Enum.filter(data_vals, fn val-> Enum.member?(antenae, val)==false end)
-    assert Enum.all?(Day8.get_points_from_str("data/day8_sample.txt"), fn ea-> Enum.member?(antenae, ea) end) == true
+    antenae = [
+      {0, 0},
+      {0, 1},
+      {0, 6},
+      {0, 11},
+      {1, 1},
+      {1, 3},
+      {2, 2},
+      {2, 4},
+      {2, 10},
+      {3, 2},
+      {3, 3},
+      {4, 9},
+      {5, 1},
+      {5, 5},
+      {5, 11},
+      {6, 3},
+      {6, 6},
+      {7, 0},
+      {7, 5},
+      {7, 7},
+      {8, 2},
+      {9, 4},
+      {10, 1},
+      {10, 10},
+      {11, 3},
+      {11, 10},
+      {11, 11}
+    ]
 
+    data_vals = Day8.get_points_from_str("data/day8_sample.txt")
+    filtered = Enum.filter(data_vals, fn val -> Enum.member?(antenae, val) == false end)
+
+    assert Enum.all?(Day8.get_points_from_str("data/day8_sample.txt"), fn ea ->
+             Enum.member?(antenae, ea)
+           end) == true
   end
 end

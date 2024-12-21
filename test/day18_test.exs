@@ -89,7 +89,7 @@ defmodule Day18Test do
     start = {0, 0}
 
     run =
-      Day18.a_star(
+      Utils.a_star(
         [
           {
             start,

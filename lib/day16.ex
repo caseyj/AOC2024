@@ -1,9 +1,11 @@
 defmodule Day16 do
-  def score_move(direction, previous_direction) do
-    case direction do
-      x when x == previous_direction -> 1
-      _ -> 1001
+  def score_move(new_point, previous_point) do
+    if elem(new_point, 1) == elem(previous_point,1) do
+      elem(previous_point,2)+1
+    else
+      elem(previous_point,2)+1001
     end
+
   end
 
   def get_options(direction) do
@@ -64,13 +66,16 @@ defmodule Day16 do
   def part1(filename) do
     {:ok, content} = File.read(filename)
     parse_map = Utils.generate_map_from_split_str(content)
-
+    {start_x, start_y} = hd(Map.get(parse_map, "S"))
+    {targ_x,targ_y} = hd(Map.get(parse_map, "E"))
     result =
-      a_star(
-        [{hd(Map.get(parse_map, "S")), :east, 0, 1_000_000}],
-        hd(Map.get(parse_map, "E")),
+      Utils.a_star(
+        [{{start_y, start_x}, :east, 0, Utils.manhattan({start_y, start_x}, {targ_y,targ_x}),[]}],
+        {targ_y,targ_x},
         [],
-        Map.get(parse_map, "#")
+        Map.get(parse_map, "#"),
+        &score_move/2,
+        13,13
       )
 
     elem(result, 2)

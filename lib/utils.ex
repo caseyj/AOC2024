@@ -146,7 +146,7 @@ defmodule Utils do
                 Map.put(
                   acc,
                   elem(element, 0),
-                  Map.get(acc, elem(element, 0), []) ++ [{elem(line, 1), elem(element, 1)}]
+                  Map.get(acc, elem(element, 0), []) ++ [{elem(element, 1), elem(line, 1)}]
                 )
             end
           end
@@ -215,11 +215,11 @@ defmodule Utils do
   {{x, y}, direction, score, distance, history}
 
   """
-  def a_star(queue, target, seen, walls) do
+  def a_star(queue, target, seen, walls, scoring_function, size_x, size_y) do
     {{x, y}, direction, score, distance, history} = hd(queue)
 
     if {x, y} == target do
-      {{x, y}, direction, score, distance, history}
+      {{x, y}, direction, score, distance, history++[{{x, y}, direction}]}
     else
       queue_point_list = Enum.reduce(queue, [], fn q, acc -> acc ++ [elem(q, 0)] end)
 
@@ -230,14 +230,57 @@ defmodule Utils do
         end)
         |> filter_elements_from_multiple_lists([queue_point_list, seen, walls])
         |> Enum.filter(fn {{column, row}, _} ->
-          check_on_map(row, column, elem(target, 0) + 1, elem(target, 1) + 1) == true
+          check_on_map(row, column, size_x, size_y) == true
         end)
         |> Enum.map(fn {point, new_direction} ->
-          {point, new_direction, score + 1, manhattan(point, target), history ++ [{x, y}]}
+          {point, new_direction, scoring_function.({point, new_direction}, hd(queue)), manhattan(point, target), history ++ [{{x, y}, direction}]}
         end)
 
       new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
-      a_star(new_queue, target, seen ++ [{x, y}], walls)
+      a_star(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y)
     end
   end
+
+  @doc """
+  Scoring function that adds a point every step taken
+
+  Assumes the third element of the `previous_point` tuple is an integer
+  """
+  def a_star_default_scoring_function(_, previous_point) do
+    elem(previous_point, 2)+1
+  end
+
+  @doc """
+  Runs the a_star implementation with the default scoring function, and assuming the x,y size of the board is the target's x,y coordinate
+  """
+  def a_star(queue, target, seen, walls) do
+    a_star(queue, target, seen, walls, &a_star_default_scoring_function/2, elem(target, 0) + 1, elem(target, 1) + 1)
+  end
+
+  @spec instruction_to_direction(any()) :: :east | :north | :south | :west
+  @doc """
+  Gives the correct direction for each instruction provided
+  """
+  def instruction_to_direction(direction) do
+    case direction do
+      x when x == "^" -> :north
+      x when x == ">" -> :east
+      x when x == "<" -> :west
+      x when x == "v" -> :south
+    end
+  end
+
+  @spec direction_to_instruction(:east | :north | :south | :west) :: <<_::8>>
+  @doc """
+  Gives the correct direction for each instruction provided
+  """
+  def direction_to_instruction(direction) do
+    case direction do
+      x when x == :north -> "^"
+      x when x == :east -> ">"
+      x when x == :west  -> "<"
+      x when x == :south  -> "v"
+    end
+  end
+
 end

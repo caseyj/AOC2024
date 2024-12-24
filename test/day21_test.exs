@@ -5,7 +5,7 @@ defmodule Day21Test do
   for{start_number, end_number, size_x, size_y, number_map_input,expected} <- [
     {"A","0", 3,4, "789\n654\n321\n#0A" , [["<", "A"]]},
     {"0","2", 3,4, "789\n654\n321\n#0A", [["^", "A"]]},
-    {"2","9", 3,4, "789\n654\n321\n#0A", [[">","^","^","A"]]},
+    {"2","9", 3,4, "789\n654\n321\n#0A", [["^","^",">","A"]]},
     {"9","A", 3,4, "789\n654\n321\n#0A", [["v","v","v","A"]]},
     {"A","<", 3,2, "#^A\n<v>", [["v","<","<","A"],["<", "v", "<", "A"]]},
     {"<","A", 3,2, "#^A\n<v>", [[">",">","^","A"],[">", "^", ">", "A"]]},
@@ -18,26 +18,8 @@ defmodule Day21Test do
   ] do
     test "check punch_in_numbers #{start_number}, #{end_number}" do
       number_map = Utils.generate_map_from_split_str(unquote(number_map_input))
-
-      assert Enum.member?(unquote(expected),Day21.punch_in_numbers(number_map,unquote(start_number), unquote(end_number), unquote(size_x), unquote(size_y)))
-    end
-  end
-
-  test "Check precomputed_map_buttons" do
-    map = Day21.pre_computed_map_buttons(Utils.generate_map_from_split_str( "#^A\n<v>"), ["A","^","v", ">", "<"], 3,2)
-    for {button, expected} <- [
-      {"A,^", [["<","A"]]},
-      {"^,A", [[">","A"]]},
-      {"A,v", [
-        ["<","v","A"],
-        ["<","v","A"]]
-      },
-      {"v,A" ,[
-        [">","^","A"],
-        ["^",">","A"]
-        ]},
-     ] do
-      assert Enum.member?(expected, Map.get(map, button))
+      direction_pad = Utils.generate_map_from_split_str("#^A\n<v>")
+      assert Enum.member?(unquote(expected),Day21.punch_in_numbers(number_map,unquote(start_number), unquote(end_number), unquote(size_x), unquote(size_y), &Day21.find_distance_for_move/3,direction_pad))
     end
   end
 
@@ -48,13 +30,17 @@ defmodule Day21Test do
   ] do
     test "Check instructions_to_instructions #{expected}" do
       map = Utils.generate_map_from_split_str( "#^A\n<v>")
-      assert length(Day21.instructions_to_instructions(unquote(instructions_list), map)) == unquote(expected)
+      assert length(Day21.instructions_to_instructions(unquote(instructions_list), map, 1)) == unquote(expected)
     end
+  end
+
+  test "exacly 1 case" do
+    assert Enum.join(Day21.get_full_robot_list("029A"),"") == "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"
   end
 
   test "Check instructions_to_instructions instructions_to_instructions" do
     map = Utils.generate_map_from_split_str( "#^A\n<v>")
-    assert length(Day21.instructions_to_instructions(Day21.instructions_to_instructions(["<","A","^","A",">","^","^","A","v","v","v","A"], map), map)) == 68
+    assert length(Day21.instructions_to_instructions(["<","A","^","A",">","^","^","A","v","v","v","A"], map, 2)) == 68
   end
 
 

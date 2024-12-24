@@ -53,7 +53,7 @@ defmodule Utils do
     end
   end
 
-  @spec map_append_lists(map(), any(), any()) :: map()
+  @spec map_append_lists(map(), any(), list()) :: map()
   @doc """
   function automates adding elements to a map between arbitrary keys and lists at that key.
 
@@ -210,12 +210,39 @@ defmodule Utils do
     a_score < b_score
   end
 
-  @doc """
-  A largely generalized A star algorithm that assumes each element in the search is in the format
-  {{x, y}, direction, score, distance, history}
+  def a_star_with_options(queue, target, seen, walls, scoring_function, size_x, size_y, data_for_scoring, accepted) do
+    {{x, y}, direction, score, distance, history} = hd(queue)
+    if length(queue) == 0 do
+      accepted
+    else
+      if {x, y} == target do
+        na = accepted++[{{x, y}, direction, score, distance, history++[{{x, y}, direction}]}]
+        nq = tl(queue)
+        a_star_with_options(nq, target, seen, walls, scoring_function, size_x, size_y, data_for_scoring, accepted)
+      else
+        queue_point_list = Enum.reduce(queue, [], fn q, acc -> acc ++ [elem(q, 0)] end)
 
-  """
-  def a_star(queue, target, seen, walls, scoring_function, size_x, size_y) do
+        points =
+          Enum.map([:north, :south, :east, :west], fn next_direction ->
+            {y, x} = direction_operator(y, x, next_direction, 1)
+            {{x, y}, next_direction}
+          end)
+          |> filter_elements_from_multiple_lists([queue_point_list, seen, walls])
+          |> Enum.filter(fn {{column, row}, _} ->
+            check_on_map(row, column, size_x, size_y) == true
+          end)
+          |> Enum.map(fn {point, new_direction} ->
+            {point, new_direction, scoring_function.({point, new_direction}, hd(queue), data_for_scoring), manhattan(point, target), history ++ [{{x, y}, direction}]}
+          end)
+
+        new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
+        a_star_with_options(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y, data_for_scoring, accepted)
+      end
+    end
+
+  end
+
+  def a_star(queue, target, seen, walls, scoring_function, size_x, size_y, data_for_scoring) do
     {{x, y}, direction, score, distance, history} = hd(queue)
 
     if {x, y} == target do
@@ -233,12 +260,57 @@ defmodule Utils do
           check_on_map(row, column, size_x, size_y) == true
         end)
         |> Enum.map(fn {point, new_direction} ->
-          {point, new_direction, scoring_function.({point, new_direction}, hd(queue)), manhattan(point, target), history ++ [{{x, y}, direction}]}
+          {point, new_direction, scoring_function.({point, new_direction}, hd(queue), data_for_scoring), manhattan(point, target), history ++ [{{x, y}, direction}]}
         end)
 
       new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
-      a_star(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y)
+      a_star(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y, data_for_scoring)
     end
+  end
+
+  def get_options(direction) do
+    case direction do
+      x when x == :north -> [:north, :east, :west]
+      x when x == :south -> [:south, :east, :west]
+      x when x == :east -> [:north, :east, :south]
+      x when x == :west -> [:south, :north, :west]
+      x when x == nil -> [:south, :north, :west, :east]
+    end
+  end
+
+  def a_star_w_direction_options_function(queue, target, seen, walls, scoring_function, size_x, size_y, data_for_scoring) do
+    {{x, y}, direction, score, distance, history} = hd(queue)
+
+    if {x, y} == target do
+      {{x, y}, direction, score, distance, history++[{{x, y}, direction}]}
+    else
+      queue_point_list = Enum.reduce(queue, [], fn q, acc -> acc ++ [elem(q, 0)] end)
+
+      points =
+        Enum.map(get_options(direction), fn next_direction ->
+          {y, x} = direction_operator(y, x, next_direction, 1)
+          {{x, y}, next_direction}
+        end)
+        |> filter_elements_from_multiple_lists([queue_point_list, seen, walls])
+        |> Enum.filter(fn {{column, row}, _} ->
+          check_on_map(row, column, size_x, size_y) == true
+        end)
+        |> Enum.map(fn {point, new_direction} ->
+          {point, new_direction, scoring_function.({point, new_direction}, hd(queue), data_for_scoring), manhattan(point, target), history ++ [{{x, y}, direction}]}
+        end)
+
+      new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
+      a_star(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y, data_for_scoring)    end
+  end
+
+
+  @doc """
+  A largely generalized A star algorithm that assumes each element in the search is in the format
+  {{x, y}, direction, score, distance, history}
+
+  """
+  def a_star(queue, target, seen, walls, scoring_function, size_x, size_y) do
+    a_star(queue, target, seen, walls, scoring_function, size_x, size_y, [])
   end
 
   @doc """
@@ -246,7 +318,7 @@ defmodule Utils do
 
   Assumes the third element of the `previous_point` tuple is an integer
   """
-  def a_star_default_scoring_function(_, previous_point) do
+  def a_star_default_scoring_function(_, previous_point,_) do
     elem(previous_point, 2)+1
   end
 
@@ -254,7 +326,7 @@ defmodule Utils do
   Runs the a_star implementation with the default scoring function, and assuming the x,y size of the board is the target's x,y coordinate
   """
   def a_star(queue, target, seen, walls) do
-    a_star(queue, target, seen, walls, &a_star_default_scoring_function/2, elem(target, 0) + 1, elem(target, 1) + 1)
+    a_star(queue, target, seen, walls, &a_star_default_scoring_function/3, elem(target, 0) + 1, elem(target, 1) + 1)
   end
 
   @spec instruction_to_direction(any()) :: :east | :north | :south | :west

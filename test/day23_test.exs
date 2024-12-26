@@ -75,4 +75,20 @@ defmodule Day23Test do
     assert length(Day23.only_lists_with_ts(triplets_predicted)) == 7
   end
 
+  for {list_1, list_2, expected} <- [
+    {[1,2,3], [1,2,3], [1,2,3]},
+    {[1,2,3], [1,2], [1,2]},
+    {[1,2,3], [], []},
+    {[1,2], [1,2,3], [1,2]},
+    {[], [1,2,3], []},
+  ] do
+    test "list intersection #{list_1}, #{list_2}, #{expected}" do
+      l1 = unquote(list_1)
+      l2 = unquote(list_2)
+      intersect = Day23.list_intersection(l1, l2)
+      assert intersect == unquote(expected)
+    end
+  end
+
+
 end

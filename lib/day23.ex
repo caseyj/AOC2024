@@ -127,6 +127,37 @@ defmodule Day23 do
     end)
   end
 
+  def flip_lists_if_left_larger(list_1, list_2) do
+    if length(list_1) > length(list_2) do
+      {list_2, list_1}
+    else
+      {list_1, list_2}
+    end
+  end
+
+  def list_intersection(list_1, list_2) do
+    {left_list, right_list} = flip_lists_if_left_larger(list_1, list_2)
+    Enum.reduce(left_list, [], fn item, acc->
+      if Enum.member?(right_list, item) do
+        acc++[item]
+      else
+        acc
+      end
+    end)
+  end
+
+  def bron_kerbosh(cliques, verts, exclusion, map) do
+    if length(verts) == 0 and length(exclusion) == 0 do
+      cliques
+    else
+      vert = hd(verts)
+      vert_neighbors = get_neighbors(vert, map)
+      vert_intersect = list_intersection(vert_neighbors, verts)
+      exclusion_intersect = list_intersection(vert_neighbors, exclusion)
+      brk_input = {cliques++vert, vert_intersect, exclusion_intersect}
+    end
+  end
+
   def part1(filename) do
     {:ok, content} = File.read(filename)
     length(only_lists_with_ts(Map.get(build_triplets(content), :accepted)))

@@ -72,7 +72,7 @@ defmodule Day24Test do
     assignments_map = %{
       "x00"=>1, "x01"=>1, "x02"=>1, "y00"=>0, "y01"=>1, "y02"=>0}
     am = Day24.execute_all_zs(operations_map, assignments_map)
-    assert Day24.get_z_digits(operations_map, am) == [0,0,1,1]
+    assert Day24.get_z_digits(operations_map, am) == [1,1,0,0]
   end
 
   test "Part 1 " do

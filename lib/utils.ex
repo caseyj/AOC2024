@@ -45,6 +45,15 @@ defmodule Utils do
     end
   end
 
+  @doc """
+  A simple utility that shows whether a given a coordinate pair (row,column)
+  are within the bounds of a coordinate grid assuming a minimum origin point of
+  (0,0) and its maximum bound represented as (size_x, size_y).
+
+  A result of true indicates the point is in a valid space, a result of false
+  indicates the point is not within the grid.
+  """
+  @spec check_on_map(integer(), integer(), integer(), integer()) :: boolean()
   def check_on_map(row, column, size_x, size_y) do
     if row >= 0 and row < size_x and (column >= 0 and column < size_y) do
       true
@@ -136,19 +145,12 @@ defmodule Utils do
           Enum.with_index(String.split(elem(line, 0), "", trim: true)),
           acc,
           fn element, acc ->
-            elem_val = elem(element, 0)
-
-            case elem_val do
-              x when x == "." ->
-                acc
-
-              _ ->
                 Map.put(
                   acc,
                   elem(element, 0),
                   Map.get(acc, elem(element, 0), []) ++ [{elem(element, 1), elem(line, 1)}]
                 )
-            end
+
           end
         )
       end
@@ -300,7 +302,7 @@ defmodule Utils do
         end)
 
       new_queue = Enum.sort(tl(queue) ++ points, &heuristic(&1, &2))
-      a_star(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y, data_for_scoring)    end
+      a_star_w_direction_options_function(new_queue, target, seen ++ [{x, y}], walls, scoring_function, size_x, size_y, data_for_scoring)    end
   end
 
 

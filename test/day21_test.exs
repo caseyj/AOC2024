@@ -2,6 +2,10 @@ defmodule Day21Test do
 
   use ExUnit.Case
 
+  for {direction, expected} <- [] do
+    test "direction to pad instructions #{direction}"
+  end
+
   for{start_number, end_number, size_x, size_y, number_map_input,expected} <- [
     {"A","0", 3,4, "789\n654\n321\n#0A" , [["<", "A"]]},
     {"0","2", 3,4, "789\n654\n321\n#0A", [["^", "A"]]},

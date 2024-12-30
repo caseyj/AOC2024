@@ -58,7 +58,8 @@ defmodule UtilsTest do
   test "check generate map" do
     assert Utils.generate_map_from_split_str(".A.\nBB.") == %{
              "A" => [{1,0}],
-             "B" => [{0,1}, {1, 1}]
+             "B" => [{0,1}, {1, 1}],
+             "."=>[{0,0},{2,0},{2,1}]
            }
 
     assert Utils.generate_map_from_split_str("CAC\nBBD") == %{
